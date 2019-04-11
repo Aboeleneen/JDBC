@@ -41,7 +41,7 @@ public class MyResultSet implements ResultSet {
 		▪ beforeFirst() pointer = -1 
  		▪ close() MyResultSet = null 
 		▪ findColumn(String columnLabel) return the index of column name
-		▪ first() pointer = 0 ;
+		▪ first() pointer = 0 ;4
 		▪ getInt(integer columnIndex) return object[pointer][columnIndex-1]
 		▪ getInt(String columnLabel)  return object[pointer][findColumn(columnLabel)]
 		▪ getMetaData() 
@@ -71,13 +71,15 @@ public class MyResultSet implements ResultSet {
 	private ResultSetMetaData resultSetMetaData ;
 	private String tableName ;
 	
-	public MyResultSet(Object[][] content ,String[] columnNames ,String[] types, Statement statement,String tableName) {
+	public MyResultSet(Object[][] content ,String[] columnNames ,Statement statement,String tableName) {
 		this.pointer=-1;
 		this.content=content ;
 		this.columnNames = columnNames ;
 		this.statement=statement ;
 		this.resultSetMetaData = null;
 		this.tableName = tableName ;
+		types = new String[columnNames.length];
+		this.setTypes();
 	}
 	@Override
 	public boolean isWrapperFor(Class<?> arg0) throws SQLException {
@@ -406,7 +408,12 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public int getInt(int columnIndex) throws SQLException {
 		// TODO Auto-generated method stub
+		if(types[columnIndex-1].equals("int") && isValidIndex(columnIndex-1)) {
 		return (int)content[pointer][columnIndex-1];
+		}
+		else {
+			throw new  SQLException();
+		}
 	}
     
 	 /**
@@ -418,7 +425,13 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public int getInt(String columnName) throws SQLException {
 		// TODO Auto-generated method stub
-		return (int)content[pointer][this.findColumn(columnName)-1];
+		if(types[this.findColumn(columnName)-1].equals("int") && isValidIndex(this.findColumn(columnName)-1)) {
+			return (int)content[pointer][this.findColumn(columnName)-1];
+			}
+			else {
+				throw new  SQLException();
+			}
+		
 	}
 
 	@Override
@@ -487,7 +500,11 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public Object getObject(int columnIndex) throws SQLException {
 		// TODO Auto-generated method stub
+		if(isValidIndex(columnIndex-1))
 		return content[pointer][columnIndex-1];
+		else {
+			throw new SQLException();
+		}
 	}
 	/**
      * get value for this column in current row
@@ -498,7 +515,11 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public Object getObject(String columnName) throws SQLException {
 		// TODO Auto-generated method stub
+		if(isValidIndex(this.findColumn(columnName)-1))
 		return content[pointer][this.findColumn(columnName)-1];
+		else {
+			throw new SQLException();
+		}
 	}
 
 	@Override
@@ -593,7 +614,11 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public String getString(int columnIndex) throws SQLException {
 		// TODO Auto-generated method stub
+		if(types[columnIndex-1].equals("string") && isValidIndex(columnIndex-1))
 		return (String)content[pointer][columnIndex-1];
+		else {
+			throw new SQLException();
+		}
 	}
 	/**
      * get value for this column in current row
@@ -604,7 +629,11 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public String getString(String columnName) throws SQLException {
 		// TODO Auto-generated method stub
-		return (String)content[pointer][this.findColumn(columnName)-1];
+		if(types[this.findColumn(columnName)-1].equals("string") && isValidIndex(this.findColumn(columnName)-1))
+		return (String)content[pointer][this.findColumn(columnName)-1]; 
+		else {
+			throw new SQLException();
+		}
 	}
 
 	@Override
@@ -790,7 +819,7 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public boolean next() throws SQLException {
 		// TODO Auto-generated method stub
-		if(pointer +1 < content.length-1) {
+		if(pointer +1 < content.length) {
 			pointer++;
 			return true ;
 		}
@@ -805,7 +834,7 @@ public class MyResultSet implements ResultSet {
 	@Override
 	public boolean previous() throws SQLException {
 		// TODO Auto-generated method stub
-		if(pointer -1 >= 0) {
+		if(pointer -1 >= -1) {
 			pointer--;
 			return true ;
 		}
@@ -1357,5 +1386,35 @@ public class MyResultSet implements ResultSet {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public void setTypes() {
+		if(content.length == 0) return ;
+		for(int i=0;i<content[0].length ;i++) {
+			if(isInteger(content[0][i].toString())) {
+				types[i]="int";
+			}
+			else {
+				types[i]="string";
+			}
+		}
+	}
+	public Boolean isInteger(String input) {
+		try {
+			Integer.parseInt(input);
+			return true;
+		}
+		catch(Exception e) {
+			return false;
+		}
+	}
+	public boolean isValidIndex(int columnIndex) {
+		if(columnIndex >= 0 && columnIndex < columnNames.length) {
+			return true ;
+		}
+		else {
+			return false ;
+		}
+	}
+
 
 }

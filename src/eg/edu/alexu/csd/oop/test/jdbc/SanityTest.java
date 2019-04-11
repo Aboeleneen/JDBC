@@ -259,6 +259,7 @@ public class SanityTest {
                 fail("This should be 'Integer', but found 'String'!");
             else if (column_2_object instanceof Integer) {
                 int column_2 = (Integer) column_2_object;
+                System.out.println(column_2);
                 Assert.assertEquals("Select did't return the updated record!", 10, column_2);
             }
             else

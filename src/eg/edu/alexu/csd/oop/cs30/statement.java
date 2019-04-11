@@ -97,19 +97,21 @@ public class statement implements java.sql.Statement{
 						return true;
 					} 
 				} catch (SQLException e) {
+					throw new SQLException();
 				}
 			} else if (lower.contains("update") || lower.contains("delete") || lower.contains("insert")) {
 				try {time();
 					value=database.executeUpdateQuery(arg0);
 					timeout();
-					return false;
+					return true;
 					
 				} catch (SQLException e) {
-				
+				           throw new SQLException();
 				}
 			} else if (lower.contains("select")) {
 				try {time();
 					Object[][] content = database.executeQuery(arg0);
+					System.out.println("lenght"  + content.length);
 					ArrayList x =database.getColumnsNames(arg0);
 					String []h = new String[x.size()];
 					for(int i=0;i<x.size();i++)
@@ -117,11 +119,13 @@ public class statement implements java.sql.Statement{
 						h[i]=(String) x.get(i);
 					}
                     String Table =FileBuilder.getInstance().table();	
-                     result = new MyResultSet(content, h, null, this, Table);
-timeout();
-					value=0;
-					if (content == null)
-return false;
+                     result = new MyResultSet(content, h, this, Table);
+                   timeout();
+					value=0; 
+					if(content.length == 0) return false ;
+					
+					return true ;
+
 					
 					
 				} catch (SQLException e) {
